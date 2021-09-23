@@ -1,13 +1,26 @@
 const express=require('express');
-
+const dotenv=require('dotenv');
+const morgan=require('morgan');
+const bodyparser=require('body-parser');
+const connectDB=require('./server/database/connection')
+const cors=require('cors');
 const app=express();
 
-const Port=process.env.Port || 3000;
+dotenv.config({path:'config.env'})
+const PORT=process.env.PORT || 8080
 
-app.get('/', (req, res)=>{
-    res.send("Welcome")
-})
+//log request
+app.use(morgan('tiny'));
 
-app.listen(Port, ()=>{
-    console.log("App is started");
-})
+//cors
+app.use(cors());
+
+//mongodb connect
+connectDB();
+
+//pass request to body parser
+app.use(bodyparser.urlencoded({extended:true}))
+
+app.use('/api', require('./server/routes/router'))
+
+app.listen(PORT, ()=>{console.log(`Server is running on http://localhost:${PORT}`)});
